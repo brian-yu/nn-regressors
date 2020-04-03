@@ -72,12 +72,17 @@ if __name__ == '__main__':
     # tf.io.write_graph(output_graph_def, './', f'{model.name}.pbtxt')
 
     print(model.name)
-    print(model.input)
-    print(model.input[0].shape)
-    print(model.input[1].shape)
+    print(model.inputs)
+    print(model.outputs)
+
+
+    # print(model.input[0].shape)
+    # print(model.input[1].shape)
     print(model.output.name)
 
     print(model.summary())
+
+    print(model.layers)
 
 
 

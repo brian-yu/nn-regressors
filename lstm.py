@@ -61,16 +61,23 @@ if __name__ == '__main__':
     # print("Accuracy: %.2f%%" % (scores[1]*100))
  
 
+    '''
+        # tf.keras.backend.clear_session()
+        sess = tf.keras.backend.get_session()
 
-    # tf.keras.backend.clear_session()
-    sess = tf.keras.backend.get_session()
+        # print(sess.graph.as_graph_def())
+        # print(tf.keras.backend.set_learning_phase(0))
 
-    # print(sess.graph.as_graph_def())
-    # print(tf.keras.backend.set_learning_phase(0))
+        output_graph_def = convert_variables_to_constants(
+            sess,
+            sess.graph.as_graph_def(),
+            [node.op.name for node in model.outputs])
 
-    output_graph_def = convert_variables_to_constants(
-        sess,
-        sess.graph.as_graph_def(),
-        [node.op.name for node in model.outputs])
+        tf.io.write_graph(output_graph_def, './', f'{model.name}.pbtxt')
+    '''
 
-    tf.io.write_graph(output_graph_def, './', f'{model.name}.pbtxt')
+    print(model.summary())
+
+    print(model.inputs)
+    print(model.layers)
+    print(model.outputs)
