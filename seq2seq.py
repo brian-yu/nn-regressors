@@ -133,33 +133,31 @@ if __name__ == '__main__':
     print(enc.output)
     print(dec.output)
 
-    # tf.keras.backend.clear_session()
-    sess = tf.keras.backend.get_session()
+    # # tf.keras.backend.clear_session()
+    # sess = tf.keras.backend.get_session()
 
-    output_graph_def = convert_variables_to_constants(
-        sess,
-        sess.graph.as_graph_def(),
-        [node.op.name for node in enc.outputs])
+    # output_graph_def = convert_variables_to_constants(
+    #     sess,
+    #     sess.graph.as_graph_def(),
+    #     [node.op.name for node in enc.outputs])
 
-    tf.io.write_graph(output_graph_def, './', f'{enc.name}.pbtxt')
+    # tf.io.write_graph(output_graph_def, './', f'{enc.name}.pbtxt')
 
 
-    sess = tf.keras.backend.get_session()
+    # sess = tf.keras.backend.get_session()
 
-    output_graph_def = convert_variables_to_constants(
-        sess,
-        sess.graph.as_graph_def(),
-        [node.op.name for node in dec.outputs])
+    # output_graph_def = convert_variables_to_constants(
+    #     sess,
+    #     sess.graph.as_graph_def(),
+    #     [node.op.name for node in dec.outputs])
 
-    tf.io.write_graph(output_graph_def, './', f'{dec.name}.pbtxt')
+    # tf.io.write_graph(output_graph_def, './', f'{dec.name}.pbtxt')
 
 
 
 """
-../tensorflow/bazel-bin/tensorflow/tools/benchmark/benchmark_model --graph={model.name}.pbtxt --input_layer="{model.input.name}" --input_layer_shape="{input_shape}" --output_layer="{model.output.name}"
-
 
 ../tensorflow/bazel-bin/tensorflow/tools/benchmark/benchmark_model --graph=encoder.pbtxt --input_layer="input_1:0" --input_layer_shape="1,1,71" --output_layer="lstm1/while/Exit_2:0"
 
-../tensorflow/bazel-bin/tensorflow/tools/benchmark/benchmark_model --graph=decoder.pbtxt --input_layer="input_2:0" --input_layer_shape="1,1,93" --output_layer="dense1/truediv:0"
+../tensorflow/bazel-bin/tensorflow/tools/benchmark/benchmark_model --graph=decoder.pbtxt --input_layer="input_2:0,input_3:0,input_4:0" --input_layer_shape="1,1,93:1,256:1,256" --input_layer_type=float,float,float --output_layer="dense1_1/truediv:0"
 """
