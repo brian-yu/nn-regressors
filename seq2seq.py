@@ -133,6 +133,9 @@ if __name__ == '__main__':
     print(enc.output)
     print(dec.output)
 
+    print(enc.inputs)
+    print(dec.inputs)
+
     # # tf.keras.backend.clear_session()
     # sess = tf.keras.backend.get_session()
 
