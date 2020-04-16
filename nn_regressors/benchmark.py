@@ -4,8 +4,8 @@ import os
 import tensorflow.compat.v1 as tf
 import pandas as pd
 
-from tf_graph_util import convert_variables_to_constants
-
+from .tf_graph_util import convert_variables_to_constants
+from .utils import get_layer_features, preprocess
 
 def benchmark_model(model, cmd=None):
     bench_path = f"{model.name}_benchmark.txt"
@@ -48,3 +48,14 @@ def benchmark_model(model, cmd=None):
     benchmark = benchmark.drop(benchmark.columns[0], axis=1)
     benchmark['name'] = benchmark['[Name]'].apply(lambda x: x.split('/')[0])
     return benchmark
+
+def join_benchmark(features, benchmark):
+    speed = benchmark[['name', '[avg ms]']].groupby('name').sum()
+    mem = benchmark[['name', '[mem KB]']].groupby('name').max()
+    
+    return features.join(speed, on='name').join(mem, on='name')
+
+def get_benchmark_data(model):
+    benchmark = benchmark_model(model)
+    features = get_layer_features(model)
+    return preprocess(join_benchmark(features, benchmark))

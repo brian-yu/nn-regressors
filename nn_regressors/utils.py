@@ -12,9 +12,16 @@ def get_layer_features(model):
             [layer.get_config()[feature] if feature in layer.get_config() else None for layer in model.layers])
     return layers
 
+
 def flatten_shape(shape):
     if not shape:
         return None
+    
+    # Return value if it is not iterable
+    try:
+        iter(shape)
+    except TypeError as e:
+        return shape
     
     def reduce(tup):
         acc = 1
@@ -28,12 +35,14 @@ def flatten_shape(shape):
     
     return reduce(shape)
 
-def clean(data, inference=False):
+
+def preprocess(data, inference=False):
     if inference:
         cleaned = pd.get_dummies(data, columns=['activation'], dummy_na=True)
     else:
-        cleaned = pd.get_dummies(
-            data.dropna(subset=['[avg ms]', '[mem KB]']), columns=['activation'], dummy_na=True)
+        cleaned = data.dropna(subset=['[avg ms]', '[mem KB]'])
+        if 'activation' in data.columns:
+            cleaned = pd.get_dummies(cleaned, columns=['activation'], dummy_na=True)
     
     for activation in ['selu', 'elu', 'softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'exponential', 'linear']:
         col = f"activation_{activation}"
@@ -47,3 +56,4 @@ def clean(data, inference=False):
     cleaned['kernel_size'] = cleaned['kernel_size'].apply(flatten_shape)
 
     return cleaned.fillna(-1)
+

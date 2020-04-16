@@ -27,13 +27,13 @@ parent_dir/
 
 ## Instantiate regressor objects
 ```python
-from nn_regressors import CNNRegressor, RNNRegressor
+from nn_regressors import cnn, rnn
 
-cnn_cpu_reg = CNNRegressor.CPU()
-cnn_mem_reg = CNNRegressor.Memory()
+cnn_cpu_reg = cnn.CPURegressor()
+cnn_mem_reg = cnn.MemoryRegressor()
 
-rnn_cpu_reg = RNNRegressor.CPU()
-rnn_mem_reg = RNNRegressor.Memory()
+rnn_cpu_reg = rnn.CPURegressor()
+rnn_mem_reg = rnn.MemoryRegressor()
 ```
 
 ## Predict layer CPU and memory usage
@@ -46,37 +46,66 @@ resnet = tf.keras.applications.resnet50.ResNet50(
     weights='imagenet')
 
 # Both method calls return a Pandas dataframe containing predictions for each layer.
-layer_cpu_time = cnn_cpu_reg(resnet)
-layer_mem_usage = cnn_mem_reg(resnet)
+layer_cpu_time = cnn_cpu_reg.predict(resnet)
+layer_mem_usage = cnn_mem_reg.predict(resnet)
 ```
 
-# Training regression model on your own machine
+## Training regression model on your own machine
 
 ## Generate Benchmarks
 
-Make sure that your directory structure looks like this:
+Make sure that your directory structure looks like this and that you have built `tensorflow` from source using `bazel`:
 ```
 parent_dir/
     tensorflow/
     nn-regressors/
 ```
 
-```bash
-$ cd nn-regressors
+```python
+from nn_regressors import cnn, rnn
 
-$ python3 lstm.py
-$ python3 seq2seq.py
-$ python3 inception.py
-$ python3 vgg.py
+# Create Regressor instances
+cnn_cpu_reg = cnn.CPURegressor()
+cnn_mem_reg = cnn.MemoryRegressor()
+
+# Load VGG model.
+tf.keras.backend.clear_session() # IMPORTANT for layer names to match up.
+vgg16_model = tf.keras.applications.vgg16.VGG16(
+    include_top=True,
+    weights='imagenet')
+
+# Add vgg model data
+cnn_cpu_reg.add_model_data(vgg16_model)
+cnn_mem_reg.add_model_data(vgg16_model)
+
+# Load inception model.
+tf.keras.backend.clear_session() # IMPORTANT for layer names to match up.
+inception_model = tf. keras.applications.inception_v3.InceptionV3(
+    include_top=True, weights='imagenet')
+
+# Add inception model data
+cnn_cpu_reg.add_model_data(inception_model)
+cnn_mem_reg.add_model_data(inception_model)
+
+# Fit regressors to new model data.
+cnn_cpu_reg.fit()
+cnn_mem_reg.fit()
+
+# You can also save the model state.
+# After calling save() with no arguments, future instances
+# will automatically load the latest saved model.
+cnn_cpu_reg.save()
+cnn_mem_reg.save()
+
+load_prev_save_cpu_reg = cnn.CPURegressor()
+
+# If you call save(filename) with an arg, it will save to that specific
+# file, which you can load later.
+cnn_cpu_reg.save('reg1.joblib')
+new_cnn_cpu_reg = cnn.CPURegressor(save_file='reg1.joblib')
 ```
 
-
-<!-- ## Creating Benchmark generation programs -->
-
-## Train the regression model
-```bash
-$ python3 regress.py
-```
+#### NOTE: For more complex models (e.g. seq2seq), you may have to run the benchmarks individually first.
 
 # Limitations
 - Currently only works on Keras models.
