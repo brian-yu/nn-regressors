@@ -12,9 +12,16 @@
         - `./tensorflow/bazel-bin/tensorflow/tools/benchmark/benchmark_model --graph=decoder.pbtxt --input_layer="input_2:0,input_3:0,input_4:0" --input_layer_shape="1,1,93:1,256:1,256" --input_layer_type=float,float,float --output_layer="dense1_1/truediv:0"`
 2. Install this module.
     - Clone the repo.
-        - `git clone https://github.com/brian-yu/cnn-rnn-profiling.git`
+        - `git clone https://github.com/brian-yu/nn-regressors.git`
     - Install the package.
-        - `pip install -e ./nn_regressors`
+        - `pip install -e ./`
+
+After these steps, your directory structure looks like this:
+```
+parent_dir/
+    tensorflow/
+    nn-regressors/
+```
 
 # Using the library
 
@@ -49,19 +56,25 @@ Make sure that your directory structure looks like this:
 ```
 parent_dir/
     tensorflow/
-    cnn-rnn-profiling/
+    nn-regressors/
 ```
-- ` cd cnn-rnn-profiling`
-- `python3 lstm.py`
-- `python3 seq2seq.py`
-- `python3 inception.py`
-- `python3 vgg.py`
+
+```bash
+$ cd nn-regressors
+
+$ python3 lstm.py
+$ python3 seq2seq.py
+$ python3 inception.py
+$ python3 vgg.py
+```
 
 
 <!-- ## Creating Benchmark generation programs -->
 
 ## Train the regression model
-- `python3 regress.py`
+```bash
+$ python3 regress.py
+```
 
 # Limitations
 - Currently only works on Keras models.
