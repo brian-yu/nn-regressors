@@ -21,19 +21,24 @@
 ## Instantiate regressor objects
 ```python
 from nn_regressors import CNNRegressor, RNNRegressor
-cnn_cpu_reg = CNNRegressor.cpu()
-cnn_mem_reg = CNNRegressor.memory()
-rnn_cpu_reg = RNNRegressor.cpu()
-rnn_mem_reg = RNNRegressor.memory()
+
+cnn_cpu_reg = CNNRegressor.CPU()
+cnn_mem_reg = CNNRegressor.Memory()
+
+rnn_cpu_reg = RNNRegressor.CPU()
+rnn_mem_reg = RNNRegressor.Memory()
 ```
 
 ## Predict layer CPU and memory usage
 ```python
+# Instantiate example model.
 resnet = tf.keras.applications.resnet50.ResNet50(
     include_top=True,
     weights='imagenet')
 
-layer_cpu_time = cnn_cpu_reg(ResNet50)
+# Both method calls return a Numpy array containing predictions for each layer.
+layer_cpu_time = cnn_cpu_reg(resnet)
+layer_mem_usage = cnn_mem_reg(resnet)
 ```
 
 # Training regression model on your own machine
@@ -60,6 +65,7 @@ parent_dir/
 
 # Limitations
 - Currently only works on Keras models.
+- Complex model architectures may be problematic when used with Tensorflow Benchmark Tool
 
 # Default benchmark machine specs
 - 2017 MacBook Pro
