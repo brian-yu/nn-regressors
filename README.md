@@ -14,13 +14,23 @@
     - Clone the repo.
         - `git clone https://github.com/brian-yu/nn-regressors.git`
     - Install the package.
-        - `pip install -e ./`
+        - `pip install -e ./nn-regressors/`
 
-After these steps, your directory structure looks like this:
-```
+After these steps, your directory structure should look like this:
+
+```bash
 parent_dir/
     tensorflow/
     nn-regressors/
+```
+
+Create a new directory on the same level as `tensorflow/` in which you will do your work. This is important because the benchmark scripts use `subprocess` to run benchmarks (see [example](https://github.com/brian-yu/nn-regressors/blob/d0e1063a1b3894d27db376e00c8d367c5b2ae555/nn_regressors/benchmark.py#L30)).
+
+```bash
+parent_dir/
+    tensorflow/
+    nn-regressors/
+    work_dir/ # create this!
 ```
 
 # Using the library
@@ -52,7 +62,7 @@ layer_mem_usage = cnn_mem_reg.predict(resnet)
 
 ## Training regression model on your own machine
 
-## Generate Benchmarks
+## Generate Benchmarks (simple models)
 
 Make sure that your directory structure looks like this and that you have built `tensorflow` from source using `bazel`:
 ```
@@ -105,7 +115,73 @@ cnn_cpu_reg.save('reg1.joblib')
 new_cnn_cpu_reg = cnn.CPURegressor(save_file='reg1.joblib')
 ```
 
-#### NOTE: For more complex models (e.g. seq2seq), you may have to run the benchmarks individually first.
+## Generating Benchmarks for Complex Models
+For more complex models (e.g. seq2seq), you may have to run the benchmarks manually first.
+
+This will create `<model_name>_benchmark.txt` files that the library will use instead of calling the Tensorflow Benchmark Tool.
+
+### Example:
+
+For the seq2seq model in [seq2seq.py](https://github.com/brian-yu/nn-regressors/blob/d0e1063a1b3894d27db376e00c8d367c5b2ae555/seq2seq.py), the model must be split into 2; the encoder and the decoder model.
+
+1. Serialize the models.
+
+```python
+import tensorflow.compat.v1 as tf
+
+from seq2seq import create_seq2seq
+from nn_regressors import 
+
+tf.keras.backend.clear_session()
+enc, dec = create_seq2seq()
+
+# Serialize encoder into `encoder.pbtxt`
+sess = tf.keras.backend.get_session()
+output_graph_def = convert_variables_to_constants(
+    sess,
+    sess.graph.as_graph_def(),
+    [node.op.name for node in enc.outputs])
+tf.io.write_graph(output_graph_def, './', f'{enc.name}.pbtxt')
+
+# Serialize decoder into `decoder.pbtxt`
+sess = tf.keras.backend.get_session()
+output_graph_def = convert_variables_to_constants(
+    sess,
+    sess.graph.as_graph_def(),
+    [node.op.name for node in dec.outputs])
+tf.io.write_graph(output_graph_def, './', f'{dec.name}.pbtxt')
+
+# Print the model summaries in order to find out the input layer name,
+# the output layer name, and their shapes. This will be useful
+# when running the Tensorflow benchmark tool.
+print(enc.summary())
+print(dec.summary())
+
+```
+
+2. Run the benchmarks.
+
+In order to figure out the arguments for the Tensorflow benchmark tool, look at the Keras model summaries.
+
+```bash
+#  Benchmark the encoder.
+$ ../tensorflow/bazel-bin/tensorflow/tools/benchmark/benchmark_model \
+    --graph=encoder.pbtxt \
+    --input_layer="input_1:0" \
+    --input_layer_shape="1,1,71" \
+    --output_layer="lstm1/while/Exit_2:0"
+
+# Benchmark the decoder.
+$ ../tensorflow/bazel-bin/tensorflow/tools/benchmark/benchmark_model \
+    --graph=decoder.pbtxt \
+    --input_layer="input_2:0,input_3:0,input_4:0" \
+    --input_layer_shape="1,1,93:1,256:1,256" \
+    --input_layer_type=float,float,float \
+    --output_layer="dense1_1/truediv:0"
+```
+
+3. Add model data as above.
+Since the model benchmark data has been saved in `<model_name>_benchmark.txt`, you can run the code in the previous section, using `regressor.add_model_data(model)`.
 
 # Limitations
 - Currently only works on Keras models.
