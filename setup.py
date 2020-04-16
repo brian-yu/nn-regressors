@@ -11,8 +11,10 @@ setuptools.setup(
     description="Regressors that predict NN layer and CPU usage.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/brian-yu/cnn-rnn-profiling",
-    packages=setuptools.find_packages(),
+    url="https://github.com/brian-yu/nn-regressors",
+    packages=['nn_regressors'],
+    package_dir={'nn_regressors': 'nn_regressors/'},
+    package_data={'nn_regressors': ['./*.joblib', './*_benchmark.txt']},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
