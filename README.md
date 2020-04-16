@@ -38,12 +38,14 @@ rnn_mem_reg = RNNRegressor.Memory()
 
 ## Predict layer CPU and memory usage
 ```python
+import tensorflow.compat.v1 as tf
+
 # Instantiate example model.
 resnet = tf.keras.applications.resnet50.ResNet50(
     include_top=True,
     weights='imagenet')
 
-# Both method calls return a Numpy array containing predictions for each layer.
+# Both method calls return a Pandas dataframe containing predictions for each layer.
 layer_cpu_time = cnn_cpu_reg(resnet)
 layer_mem_usage = cnn_mem_reg(resnet)
 ```

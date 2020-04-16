@@ -4,10 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="nn-regressors", # Replace with your own username
+    name="nn-regressors",
     version="0.0.1",
-    author="Brian Yu",
-    author_email="bry4xm@virginia.edu",
     description="Regressors that predict NN layer and CPU usage.",
     long_description=long_description,
     long_description_content_type="text/markdown",
