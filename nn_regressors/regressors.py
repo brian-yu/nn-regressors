@@ -3,10 +3,13 @@ from enum import Enum
 import pkg_resources
 
 import pandas as pd
-from joblib import load
+from joblib import load, dump
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
 
 from .utils import get_layer_features, preprocess
-from .benchmark import get_benchmark_data
+from .benchmark import get_benchmark_data, benchmark_model
 
 class Architecture(Enum):
     NONE = 0
@@ -49,26 +52,47 @@ class Regressor():
         elif self.type == RegressorType.MEM:
             target_column = '[mem KB]'
         else:
-            raise Exception("Invalud Regerssor Type")
+            raise Exception("Invalid Regressor Type")
 
         X = self.train_df.drop(['name', '[avg ms]', '[mem KB]', 'input_shape', 'output_shape', 'strides'], axis=1)  # Features
         y = self.train_df[target_column]  # Labels
 
         # Split dataset into training set and test set
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.3, random_state = RANDOM_SEED) # 70% training and 30% test
+            X, y, test_size=0.3, random_state = seed) # 70% training and 30% test
 
         # Instantiate model with 1000 decision trees
-        self.regerssor = RandomForestRegressor(n_estimators = n_estimators, random_state = seed)
+        self.regressor = RandomForestRegressor(n_estimators = n_estimators, random_state = seed)
         # Train the model on training data
         self.regressor.fit(X_train, y_train);
 
         return X_test, y_test
     
+    def evaluate(self, model):
+        pred = self.predict(model)
+        benchmark = benchmark_model(model)
+
+        pred_col = f"pred_{self.type.name}"
+
+        if self.type == RegressorType.CPU:
+            actual_col = '[avg ms]'
+            get_col = lambda x: x.sum()
+        elif self.type == RegressorType.MEM:
+            actual_col = '[mem KB]'
+            get_col = lambda x: x.max()
+            
+        actual = get_col(
+            benchmark[['name', actual_col]].groupby('name')
+        )
+
+        df = actual.merge(pred, on='name')
+        
+        return mean_squared_error(df[pred_col], df[actual_col])
+    
     def add_model_data(self, model):
         new_data = get_benchmark_data(model)
 
-        if not self.train_df:
+        if self.train_df is None:
             self.state = RegressorState.CUSTOM
             self.train_df = new_data
         else:

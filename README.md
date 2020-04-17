@@ -75,17 +75,19 @@ parent_dir/
 You can add new models programatically:
 
 ```python
+import tensorflow.compat.v1 as tf
 from nn_regressors import CNN
 
 # Create Regressor instances
-cnn_cpu_reg = cnn.CPURegressor()
-cnn_mem_reg = cnn.MemoryRegressor()
+cnn_cpu_reg = CNN.CPURegressor()
+cnn_mem_reg = CNN.MemoryRegressor()
 
 # Load VGG model.
 tf.keras.backend.clear_session() # IMPORTANT for layer names to match up.
 vgg16_model = tf.keras.applications.vgg16.VGG16(
     include_top=True,
-    weights='imagenet')
+    weights='imagenet',
+)
 
 # Add vgg model data
 cnn_cpu_reg.add_model_data(vgg16_model)
@@ -94,7 +96,9 @@ cnn_mem_reg.add_model_data(vgg16_model)
 # Load inception model.
 tf.keras.backend.clear_session() # IMPORTANT for layer names to match up.
 inception_model = tf. keras.applications.inception_v3.InceptionV3(
-    include_top=True, weights='imagenet')
+    include_top=True,
+    weights='imagenet',
+)
 
 # Add inception model data
 cnn_cpu_reg.add_model_data(inception_model)
@@ -104,18 +108,28 @@ cnn_mem_reg.add_model_data(inception_model)
 cnn_cpu_reg.fit()
 cnn_mem_reg.fit()
 
+
+## Evaluate on new model.
+mobilenet = tf.keras.applications.mobilenet_v2.MobileNetV2(
+    include_top=True,
+    weights='imagenet')
+
+# Print MSEs of regression models.
+print(cnn_cpu_reg.evaluate(mobilenet))
+print(cnn_mem_reg.evaluate(mobilenet))
+
 # You can also save the model state.
 # After calling save() with no arguments, future instances
 # will automatically load the latest saved model.
 cnn_cpu_reg.save()
 cnn_mem_reg.save()
 
-load_prev_save_cpu_reg = cnn.CPURegressor()
+load_prev_save_cpu_reg = CNN.CPURegressor()
 
 # If you call save(filename) with an arg, it will save to that specific
 # file, which you can load later.
 cnn_cpu_reg.save('reg1.joblib')
-new_cnn_cpu_reg = cnn.CPURegressor(save_file='reg1.joblib')
+new_cnn_cpu_reg = CNN.CPURegressor(save_file='reg1.joblib')
 ```
 
 ## Generating Benchmarks for Complex Models
@@ -195,3 +209,14 @@ Since the model benchmark data has been saved in `<model_name>_benchmark.txt`, y
 - 2.9 GHz Intel Core i7
 - 16 GB 2133 MHz DDR3 RAM
 - Radeon Pro 560 4 GB GPU (however, Tensorflow CPU was used)
+
+# Running Examples
+Run examples in the `examples/` directory from the main folder. e.g.
+```bash
+$ python examples/example.py
+```
+
+# Important Files
+- `nn_regressors/regressors.py`: Regressor fitting and evaluation code. You can tweak the regression model by editing this file.
+- `nn_regressors/benchmark.py`: Code that runs the Tensorflow Benchmark Tool.
+- `nn_regressors/utils.py`: Code that cleans and preprocesses data.

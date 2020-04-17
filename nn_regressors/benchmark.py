@@ -39,9 +39,11 @@ def benchmark_model(model, cmd=None):
             with open(bench_path, 'w') as f:
                 f.write("\n".join(split_output[1:-2]))
         else:
-            print("Retrieving saved benchmark results.")
+            # print("Retrieving saved benchmark results.")
+            pass
     else:
-        print("Retrieving saved model and benchmark results.")
+        pass
+        # print("Retrieving saved model and benchmark results.")
     
     f = open(bench_path)
     benchmark = pd.read_csv(f, sep="\t").rename(columns=lambda x: x.strip())
