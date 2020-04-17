@@ -62,14 +62,14 @@ layer_mem_usage = cnn_mem_reg.predict(resnet)
 
 ## Training regression model on your own machine
 
-## Generate Benchmarks (simple models)
+### Generate Benchmarks (simple models)
 
 Make sure that your directory structure looks like this and that you have built `tensorflow` from source using `bazel`:
 ```
 parent_dir/
     tensorflow/
     nn-regressors/
-    work_dir_arbitrary_name/ # put code in here,
+    work_dir_arbitrary_name/ # put code that uses the library here!
 ```
 
 You can add new models programatically:
@@ -132,12 +132,14 @@ cnn_cpu_reg.save('reg1.joblib')
 new_cnn_cpu_reg = CNN.CPURegressor(save_file='reg1.joblib')
 ```
 
-## Generating Benchmarks for Complex Models
+**Note: You can clear saved benchmark results with `rm *_benchmark.txt` and clear serialized models with `rm *.pbtxt`.**
+
+### Generating Benchmarks for Complex Models
 For more complex models (e.g. seq2seq) on which the above code fails, you may have to run the benchmarks manually first.
 
 This will create `<model_name>_benchmark.txt` files that the library will use instead of calling the Tensorflow Benchmark Tool.
 
-### Example:
+#### Example:
 
 For the seq2seq model in [seq2seq.py](https://github.com/brian-yu/nn-regressors/blob/d0e1063a1b3894d27db376e00c8d367c5b2ae555/seq2seq.py), the model must be split into 2; the encoder and the decoder model.
 
