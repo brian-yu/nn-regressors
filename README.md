@@ -25,7 +25,7 @@
     - Clone the repo.
         - `git clone https://github.com/brian-yu/nn-regressors.git`
     - Install the package.
-        - `pip install -e ./nn-regressors/`
+        - `pip install -e nn-regressors`
 
 After these steps, your directory structure should look like this:
 
