@@ -1,3 +1,14 @@
+## Table of Contents
+1. [Installation](#Installation)
+2. [Using the Library](#Using-the-library)
+    - [Instantiate regressor objects](#Instantiate-regressor-objects)
+    - [Predict layer CPU and memory usage](#Predict-layer-CPU-and-memory-usage)
+    - [Training regression model on your own machine](#Training-regression-model-on-your-own-machine)
+3. [Limitations](#Limitations)
+4. [Default Benchmark Machine Specs](#Default-benchmark-machine-specs)
+5. [Running Examples](#Running-Examples)
+6. [Important Files](#Important-Files)
+
 # Installation
 1. [Download and build Tensorflow from source](https://www.tensorflow.org/install/source) in order to use the Tensorflow Benchmark Tool. Summarized steps:
     - [Install Bazel](https://docs.bazel.build/versions/master/install.html)
