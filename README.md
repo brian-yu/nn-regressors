@@ -37,13 +37,13 @@ parent_dir/
 
 ## Instantiate regressor objects
 ```python
-from nn_regressors import cnn, rnn
+from nn_regressors import CNN, RNN
 
-cnn_cpu_reg = cnn.CPURegressor()
-cnn_mem_reg = cnn.MemoryRegressor()
+cnn_cpu_reg = CNN.CPURegressor()
+cnn_mem_reg = CNN.MemoryRegressor()
 
-rnn_cpu_reg = rnn.CPURegressor()
-rnn_mem_reg = rnn.MemoryRegressor()
+rnn_cpu_reg = RNN.CPURegressor()
+rnn_mem_reg = RNN.MemoryRegressor()
 ```
 
 ## Predict layer CPU and memory usage
@@ -69,10 +69,13 @@ Make sure that your directory structure looks like this and that you have built 
 parent_dir/
     tensorflow/
     nn-regressors/
+    work_dir_arbitrary_name/ # put code in here,
 ```
 
+You can add new models programatically:
+
 ```python
-from nn_regressors import cnn, rnn
+from nn_regressors import CNN
 
 # Create Regressor instances
 cnn_cpu_reg = cnn.CPURegressor()
@@ -116,7 +119,7 @@ new_cnn_cpu_reg = cnn.CPURegressor(save_file='reg1.joblib')
 ```
 
 ## Generating Benchmarks for Complex Models
-For more complex models (e.g. seq2seq), you may have to run the benchmarks manually first.
+For more complex models (e.g. seq2seq) on which the above code fails, you may have to run the benchmarks manually first.
 
 This will create `<model_name>_benchmark.txt` files that the library will use instead of calling the Tensorflow Benchmark Tool.
 

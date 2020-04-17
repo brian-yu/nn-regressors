@@ -1,2 +1,2 @@
-from .regressors import CNNRegressor, RNNRegressor
-from .benchmark import get_benchmark_data
+from .regressors import CNN, RNN
+from .benchmark import get_benchmark_data, benchmark_model

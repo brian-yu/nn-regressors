@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 import pkg_resources
 
@@ -39,7 +40,7 @@ class Regressor():
         
         predicted = self.regressor.predict(X)
 
-        return pd.DataFrame({'name': cleaned_features['name'], f'pred_{self.type}': predicted})
+        return pd.DataFrame({'name': cleaned_features['name'], f'pred_{self.type.name}': predicted})
     
     def fit(self, n_estimators=1000, seed=42):
 
@@ -86,11 +87,11 @@ class Regressor():
         if not self.save_file:
             raise Exception("Save file must not be None.")
 
-        if os.path.exists(save_file):
-            return load(save_file)
+        if os.path.exists(self.save_file):
+            return load(self.save_file)
 
         reg_file = pkg_resources.resource_filename(
-            'nn_regressors', save_file
+            'nn_regressors', self.save_file
         )
         return load(reg_file)
         
