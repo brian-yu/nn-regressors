@@ -11,6 +11,7 @@ from tf_graph_util import convert_variables_to_constants
 # from keras.layers import Input, LSTM, Dense
 import numpy as np
 
+
 def create_seq2seq():
     batch_size = 64  # Batch size for training.
     epochs = 100  # Number of epochs to train for.
@@ -22,11 +23,10 @@ def create_seq2seq():
 
     # Define an input sequence and process it.
     encoder_inputs = Input(shape=(None, num_encoder_tokens))
-    encoder = LSTM(latent_dim, name='lstm1', return_state=True)
+    encoder = LSTM(latent_dim, name="lstm1", return_state=True)
     encoder_outputs, state_h, state_c = encoder(encoder_inputs)
     # We discard `encoder_outputs` and only keep the states.
     encoder_states = [state_h, state_c]
-
 
     # enc = Sequential(name='encoder')
     # # model.name = 'lstm'
@@ -39,16 +39,16 @@ def create_seq2seq():
     # model.add(Dense(1, activation='sigmoid'))
     # model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-
     # Set up the decoder, using `encoder_states` as initial state.
     decoder_inputs = Input(shape=(None, num_decoder_tokens))
     # We set up our decoder to return full output sequences,
     # and to return internal states as well. We don't use the
     # return states in the training model, but we will use them in inference.
-    decoder_lstm = LSTM(latent_dim, name='lstm2', return_sequences=True, return_state=True)
-    decoder_outputs, _, _ = decoder_lstm(decoder_inputs,
-                                        initial_state=encoder_states)
-    decoder_dense = Dense(num_decoder_tokens, name='dense1', activation='softmax')
+    decoder_lstm = LSTM(
+        latent_dim, name="lstm2", return_sequences=True, return_state=True
+    )
+    decoder_outputs, _, _ = decoder_lstm(decoder_inputs, initial_state=encoder_states)
+    decoder_dense = Dense(num_decoder_tokens, name="dense1", activation="softmax")
     decoder_outputs = decoder_dense(decoder_outputs)
 
     # # Define the model that will turn
@@ -60,8 +60,6 @@ def create_seq2seq():
     #             metrics=['accuracy'])
     # return model
 
-
-
     # enc = Model(encoder_inputs, encoder_outputs, name='encoder')
     # enc.compile(optimizer='rmsprop', loss='categorical_crossentropy',
     #     metrics=['accuracy'])
@@ -70,23 +68,23 @@ def create_seq2seq():
     #     metrics=['accuracy'])
     # return enc, dec
 
-
-    encoder_model = Model(encoder_inputs, encoder_states,name='encoder')
+    encoder_model = Model(encoder_inputs, encoder_states, name="encoder")
 
     decoder_state_input_h = Input(shape=(latent_dim,))
     decoder_state_input_c = Input(shape=(latent_dim,))
     decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
     decoder_outputs, state_h, state_c = decoder_lstm(
-        decoder_inputs, initial_state=decoder_states_inputs)
+        decoder_inputs, initial_state=decoder_states_inputs
+    )
     decoder_states = [state_h, state_c]
     decoder_outputs = decoder_dense(decoder_outputs)
     decoder_model = Model(
         [decoder_inputs] + decoder_states_inputs,
-        [decoder_outputs] + decoder_states, name='decoder')
+        [decoder_outputs] + decoder_states,
+        name="decoder",
+    )
 
-    
     return encoder_model, decoder_model
-
 
 
 # model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
@@ -96,10 +94,9 @@ def create_seq2seq():
 # # Save model
 # model.save('s2s.h5')
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # model = create_seq2seq()
-
 
     # # # tf.keras.backend.clear_session()
     # # sess = tf.keras.backend.get_session()
@@ -115,7 +112,6 @@ if __name__ == '__main__':
     # print(model.inputs)
     # print(model.outputs)
 
-
     # # print(model.input[0].shape)
     # # print(model.input[1].shape)
     # print(model.output.name)
@@ -128,7 +124,6 @@ if __name__ == '__main__':
 
     print(enc.summary())
     print(dec.summary())
-
 
     print(enc.output)
     print(dec.output)
@@ -146,7 +141,6 @@ if __name__ == '__main__':
 
     # tf.io.write_graph(output_graph_def, './', f'{enc.name}.pbtxt')
 
-
     # sess = tf.keras.backend.get_session()
 
     # output_graph_def = convert_variables_to_constants(
@@ -155,7 +149,6 @@ if __name__ == '__main__':
     #     [node.op.name for node in dec.outputs])
 
     # tf.io.write_graph(output_graph_def, './', f'{dec.name}.pbtxt')
-
 
 
 """

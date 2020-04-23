@@ -59,8 +59,8 @@ def _is_variable_op(op):
 
 
 @deprecation.deprecated(
-    date=None,
-    instructions="Use `tf.compat.v1.graph_util.must_run_on_cpu`")
+    date=None, instructions="Use `tf.compat.v1.graph_util.must_run_on_cpu`"
+)
 @tf_export(v1=["graph_util.must_run_on_cpu"])
 def must_run_on_cpu(node, pin_variables_on_cpu=False):
     """Returns True if the given node_def must run on CPU, otherwise False.
@@ -167,8 +167,8 @@ def _bfs_for_reachable_nodes(target_nodes, name_to_input_name):
 
 
 @deprecation.deprecated(
-    date=None,
-    instructions="Use `tf.compat.v1.graph_util.extract_sub_graph`")
+    date=None, instructions="Use `tf.compat.v1.graph_util.extract_sub_graph`"
+)
 @tf_export(v1=["graph_util.extract_sub_graph"])
 def extract_sub_graph(graph_def, dest_nodes):
     """Extract the subgraph that can reach any of the nodes in 'dest_nodes'.
@@ -188,13 +188,13 @@ def extract_sub_graph(graph_def, dest_nodes):
         raise TypeError("dest_nodes must be a list.")
 
     name_to_input_name, name_to_node, name_to_seq_num = _extract_graph_summary(
-        graph_def)
+        graph_def
+    )
     _assert_nodes_are_present(name_to_node, dest_nodes)
 
     nodes_to_keep = _bfs_for_reachable_nodes(dest_nodes, name_to_input_name)
 
-    nodes_to_keep_list = sorted(
-        list(nodes_to_keep), key=lambda n: name_to_seq_num[n])
+    nodes_to_keep_list = sorted(list(nodes_to_keep), key=lambda n: name_to_seq_num[n])
     # Now construct the output GraphDef
     out = graph_pb2.GraphDef()
     for n in nodes_to_keep_list:
@@ -207,7 +207,7 @@ def extract_sub_graph(graph_def, dest_nodes):
 
 @deprecation.deprecated(
     date=None,
-    instructions="Use `tf.compat.v1.graph_util.tensor_shape_from_node_def_name`"
+    instructions="Use `tf.compat.v1.graph_util.tensor_shape_from_node_def_name`",
 )
 @tf_export(v1=["graph_util.tensor_shape_from_node_def_name"])
 def tensor_shape_from_node_def_name(graph, input_name):
@@ -226,13 +226,16 @@ def tensor_shape_from_node_def_name(graph, input_name):
 
 @deprecation.deprecated(
     date=None,
-    instructions="Use `tf.compat.v1.graph_util.convert_variables_to_constants`")
+    instructions="Use `tf.compat.v1.graph_util.convert_variables_to_constants`",
+)
 @tf_export(v1=["graph_util.convert_variables_to_constants"])
-def convert_variables_to_constants(sess,
-                                   input_graph_def,
-                                   output_node_names,
-                                   variable_names_whitelist=None,
-                                   variable_names_blacklist=None):
+def convert_variables_to_constants(
+    sess,
+    input_graph_def,
+    output_node_names,
+    variable_names_whitelist=None,
+    variable_names_blacklist=None,
+):
     """Replaces all the variables in a graph with constants of the same values.
     If you have a trained graph containing Variable ops, it can be convenient to
     convert them all to Const ops holding the same values. This makes it possible
@@ -263,8 +266,10 @@ def convert_variables_to_constants(sess,
             if op_name in control_ops or op_name == "Identity":
                 curr_input_name = _node_name(current_node.input[0])
             else:
-                raise ValueError("Op type %s should not be in the path " +
-                                 "between ReadVariableOp and VarHandleOp" % current_node.op)
+                raise ValueError(
+                    "Op type %s should not be in the path "
+                    + "between ReadVariableOp and VarHandleOp" % current_node.op
+                )
             current_name = curr_input_name
 
         return current_name, nodes_in_path
@@ -278,7 +283,10 @@ def convert_variables_to_constants(sess,
         output_node.attr["value"].CopyFrom(
             attr_value_pb2.AttrValue(
                 tensor=tensor_util.make_tensor_proto(
-                    data, dtype=dtype.type, shape=data_shape)))
+                    data, dtype=dtype.type, shape=data_shape
+                )
+            )
+        )
         return output_node
 
     # This graph only includes the nodes needed to evaluate the output nodes, and
@@ -286,9 +294,7 @@ def convert_variables_to_constants(sess,
     inference_graph = extract_sub_graph(input_graph_def, output_node_names)
 
     # Identify the ops in the graph.
-    map_name_to_node = {
-        node.name: node for node in inference_graph.node
-    }
+    map_name_to_node = {node.name: node for node in inference_graph.node}
 
     # Get list of variables.
     variable_names = []
@@ -298,10 +304,13 @@ def convert_variables_to_constants(sess,
     for node in inference_graph.node:
         if node.op in ["Variable", "VariableV2", "VarHandleOp"]:
             variable_name = node.name
-            if ((variable_names_whitelist is not None
-                 and variable_name not in variable_names_whitelist)
-                or (variable_names_blacklist is not None
-                    and variable_name in variable_names_blacklist)):
+            if (
+                variable_names_whitelist is not None
+                and variable_name not in variable_names_whitelist
+            ) or (
+                variable_names_blacklist is not None
+                and variable_name in variable_names_blacklist
+            ):
                 continue
             variable_dict_names.append(variable_name)
             if node.op == "VarHandleOp":
@@ -311,8 +320,9 @@ def convert_variables_to_constants(sess,
         elif node.op in ["ReadVariableOp", "ResourceGather", "VariableShape"]:
             # There can be one or more Identity or control flow ops in between the ReadVariableOp
             # and VarHandleOp.  Store them with the associated dtypes.
-            source_op_name, nodes_in_path = trace_back_find_variable(_node_name(node.input[0]),
-                                                                     map_name_to_node)
+            source_op_name, nodes_in_path = trace_back_find_variable(
+                _node_name(node.input[0]), map_name_to_node
+            )
             dtype = map_name_to_node[source_op_name].attr["dtype"]
             for node_name in nodes_in_path:
                 resource_identity_types[node_name] = dtype
@@ -333,8 +343,9 @@ def convert_variables_to_constants(sess,
         output_node = node_def_pb2.NodeDef()
         if input_node.name in variables_data_map:
             data = variables_data_map[input_node.name]
-            output_node = create_const_op(input_node.name, input_node.attr["dtype"],
-                                          data, data.shape)
+            output_node = create_const_op(
+                input_node.name, input_node.attr["dtype"], data, data.shape
+            )
             how_many_converted += 1
         elif input_node.name in resource_identity_types:
             # Converts the Identities of type RESOURCE_DT to the appropriate type
@@ -366,7 +377,8 @@ def convert_variables_to_constants(sess,
             output_node.op = "GatherV2"
             output_node.name = input_node.name
             output_node.input.extend(
-                [input_node.input[0], input_node.input[1], axis_node_name])
+                [input_node.input[0], input_node.input[1], axis_node_name]
+            )
             output_node.attr["Tparams"].CopyFrom(input_node.attr["dtype"])
             output_node.attr["Tindices"].CopyFrom(input_node.attr["Tindices"])
             output_node.attr["Taxis"].CopyFrom(axis_dtype)
@@ -388,8 +400,8 @@ def convert_variables_to_constants(sess,
 
 
 @deprecation.deprecated(
-    date=None,
-    instructions="Use `tf.compat.v1.graph_util.remove_training_nodes`")
+    date=None, instructions="Use `tf.compat.v1.graph_util.remove_training_nodes`"
+)
 @tf_export(v1=["graph_util.remove_training_nodes"])
 def remove_training_nodes(input_graph, protected_nodes=None):
     """Prunes out nodes that aren't needed for inference.
@@ -452,8 +464,11 @@ def remove_training_nodes(input_graph, protected_nodes=None):
                 names_to_splice[node.name] = node.input[0]
 
     # We also don't want to remove nodes which are used as control edge inputs.
-    names_to_splice = {name: value for name, value in names_to_splice.items()
-                       if name not in control_input_names}
+    names_to_splice = {
+        name: value
+        for name, value in names_to_splice.items()
+        if name not in control_input_names
+    }
 
     nodes_after_splicing = []
     for node in nodes_after_removal:

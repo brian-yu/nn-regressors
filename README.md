@@ -50,11 +50,11 @@ parent_dir/
 ```python
 from nn_regressors import CNN, RNN
 
-cnn_cpu_reg = CNN.CPURegressor()
-cnn_mem_reg = CNN.MemoryRegressor()
+cnn_cpu_reg = CNN.CPURegressor(pretrained=True)
+cnn_mem_reg = CNN.MemoryRegressor(pretrained=True)
 
-rnn_cpu_reg = RNN.CPURegressor()
-rnn_mem_reg = RNN.MemoryRegressor()
+rnn_cpu_reg = RNN.CPURegressor(pretrained=True)
+rnn_mem_reg = RNN.MemoryRegressor(pretrained=True)
 ```
 
 ## Predict layer CPU and memory usage
@@ -73,6 +73,9 @@ layer_mem_usage = cnn_mem_reg.predict(resnet)
 
 ## Evaluate regression model performance
 ```python
+from sklearn.linear_model import Lasso, ElasticNet
+from sklearn.ensemble import RandomForestRegressor
+
 # Evaluate MSE of predictions for resnet.
 cnn_cpu_reg.evaluate_mse(resnet)
 cnn_mem_reg.evaluate_mse(resnet)
@@ -80,6 +83,32 @@ cnn_mem_reg.evaluate_mse(resnet)
 # Evaluate MASE of predictions for resnet.
 cnn_cpu_reg.evaluate_mase(resnet)
 cnn_mem_reg.evaluate_mase(resnet)
+```
+
+## Compare different regression models
+```python
+
+densenet = tf.keras.applications.densenet.DenseNet121(
+    include_top=True,
+    weights="imagenet",
+)
+
+cnn_cpu_reg.compare(
+    [
+        RandomForestRegressor(n_estimators=1000, random_state=42),
+        Lasso(),
+        ElasticNet()
+    ],
+    densenet,
+)
+cnn_mem_reg.compare(
+    [
+        RandomForestRegressor(n_estimators=1000, random_state=42),
+        Lasso(),
+        ElasticNet()
+    ],
+    densenet,
+)
 ```
 
 ## Training regression model on your own machine
@@ -101,7 +130,7 @@ import tensorflow.compat.v1 as tf
 from nn_regressors import CNN
 
 # Create Regressor instances
-cnn_cpu_reg = CNN.CPURegressor()
+cnn_cpu_reg = CNN.CPURegressor() # will not load pretrained regressor
 cnn_mem_reg = CNN.MemoryRegressor()
 
 # Load VGG model.
@@ -137,8 +166,8 @@ mobilenet = tf.keras.applications.mobilenet_v2.MobileNetV2(
     weights='imagenet')
 
 # Print MSEs of regression models.
-print(cnn_cpu_reg.evaluate(mobilenet))
-print(cnn_mem_reg.evaluate(mobilenet))
+print(cnn_cpu_reg.evaluate_mse(mobilenet))
+print(cnn_mem_reg.evaluate_mse(mobilenet))
 
 # You can also save the model state.
 # After calling save() with no arguments, future instances

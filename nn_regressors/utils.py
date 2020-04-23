@@ -1,59 +1,101 @@
 import pandas as pd
 
+
 def get_layer_features(model):
     layers = pd.DataFrame()
-    layers['name'] = pd.Series([layer.name for layer in model.layers])
-    layers['input_shape'] = pd.Series([layer.input_shape for layer in model.layers])
-    layers['output_shape'] = pd.Series([layer.output_shape for layer in model.layers])
+    layers["name"] = pd.Series([layer.name for layer in model.layers])
+    layers["input_shape"] = pd.Series([layer.input_shape for layer in model.layers])
+    layers["output_shape"] = pd.Series([layer.output_shape for layer in model.layers])
 
-    features = ['units','filters','activation','strides','kernel_size']
+    features = ["units", "filters", "activation", "strides", "kernel_size"]
     for feature in features:
         layers[feature] = pd.Series(
-            [layer.get_config()[feature] if feature in layer.get_config() else None for layer in model.layers])
+            [
+                layer.get_config()[feature] if feature in layer.get_config() else None
+                for layer in model.layers
+            ]
+        )
     return layers
 
 
 def flatten_shape(shape):
     if not shape:
         return None
-    
+
     # Return value if it is not iterable
     try:
         iter(shape)
     except TypeError as e:
         return shape
-    
+
     def reduce(tup):
         acc = 1
         for val in tup:
             if val:
                 acc *= val
         return acc
-    
+
     if isinstance(shape, list):
         return sum(reduce(tup) for tup in shape)
-    
+
     return reduce(shape)
 
 
 def preprocess(data, inference=False):
     if inference:
-        cleaned = pd.get_dummies(data, columns=['activation'], dummy_na=True)
+        cleaned = pd.get_dummies(data, columns=["activation"], dummy_na=True)
     else:
-        cleaned = data.dropna(subset=['[avg ms]', '[mem KB]'])
-        if 'activation' in data.columns:
-            cleaned = pd.get_dummies(cleaned, columns=['activation'], dummy_na=True)
-    
-    for activation in ['selu', 'elu', 'softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'exponential', 'linear']:
+        cleaned = data.dropna(subset=["[avg ms]", "[mem KB]"])
+        if "activation" in data.columns:
+            cleaned = pd.get_dummies(cleaned, columns=["activation"], dummy_na=True)
+
+    for activation in [
+        "selu",
+        "elu",
+        "softmax",
+        "softplus",
+        "softsign",
+        "relu",
+        "tanh",
+        "sigmoid",
+        "hard_sigmoid",
+        "exponential",
+        "linear",
+    ]:
         col = f"activation_{activation}"
         if col not in cleaned.columns:
             cleaned[col] = pd.Series(0)
-    
 
-    cleaned['input_size'] = cleaned['input_shape'].apply(flatten_shape)
-    cleaned['output_size'] = cleaned['output_shape'].apply(flatten_shape)
-    cleaned['stride_size'] = cleaned['strides'].apply(flatten_shape)
-    cleaned['kernel_size'] = cleaned['kernel_size'].apply(flatten_shape)
+    cleaned["input_size"] = cleaned["input_shape"].apply(flatten_shape)
+    cleaned["output_size"] = cleaned["output_shape"].apply(flatten_shape)
+    cleaned["stride_size"] = cleaned["strides"].apply(flatten_shape)
+    cleaned["kernel_size"] = cleaned["kernel_size"].apply(flatten_shape)
 
     return cleaned.fillna(-1)
 
+
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import ElasticNet
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+
+
+# class RidgeTransformer(Ridge, TransformerMixin):
+#     def transform(self, X, *_):
+#         return self.predict(X)
+
+
+# class RandomForestTransformer(RandomForestRegressor, TransformerMixin):
+#     def transform(self, X, *_):
+#         return self.predict(X)
+
+
+# class KNeighborsTransformer(KNeighborsRegressor, TransformerMixin):
+#     def transform(self, X, *_):
+#         return self.predict(X)
+
+
+def build_model():
+    return Lasso(alpha=0.1)

@@ -22,28 +22,29 @@ numpy.random.seed(7)
 top_words = 5000
 max_review_length = 500
 
+
 def create_lstm():
     # create the model
     embedding_vecor_length = 32
-    model = Sequential(name='lstm')
+    model = Sequential(name="lstm")
     # model.name = 'lstm'
-    model.add(Embedding(top_words, embedding_vecor_length, input_length=max_review_length))
-    model.add(Conv1D(filters=32, kernel_size=3, padding='same', activation='relu'))
+    model.add(
+        Embedding(top_words, embedding_vecor_length, input_length=max_review_length)
+    )
+    model.add(Conv1D(filters=32, kernel_size=3, padding="same", activation="relu"))
     model.add(MaxPooling1D(pool_size=2))
-    model.add(LSTM(10, name='lstm1', return_sequences=True))
-    model.add(LSTM(32, name='lstm2', return_sequences=True))
-    model.add(LSTM(64, name='lstm3', return_sequences=True))
-    model.add(LSTM(128, name='lstm4', return_sequences=True))
-    model.add(LSTM(48, name='lstm5'))
-    model.add(Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.add(LSTM(10, name="lstm1", return_sequences=True))
+    model.add(LSTM(32, name="lstm2", return_sequences=True))
+    model.add(LSTM(64, name="lstm3", return_sequences=True))
+    model.add(LSTM(128, name="lstm4", return_sequences=True))
+    model.add(LSTM(48, name="lstm5"))
+    model.add(Dense(1, activation="sigmoid"))
+    model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
 
     return model
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     model = create_lstm()
 
@@ -59,9 +60,8 @@ if __name__ == '__main__':
     # # Final evaluation of the model
     # scores = model.evaluate(X_test, y_test, verbose=0)
     # print("Accuracy: %.2f%%" % (scores[1]*100))
- 
 
-    '''
+    """
         # tf.keras.backend.clear_session()
         sess = tf.keras.backend.get_session()
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
             [node.op.name for node in model.outputs])
 
         tf.io.write_graph(output_graph_def, './', f'{model.name}.pbtxt')
-    '''
+    """
 
     print(model.summary())
 
