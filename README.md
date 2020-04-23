@@ -71,6 +71,17 @@ layer_cpu_time = cnn_cpu_reg.predict(resnet)
 layer_mem_usage = cnn_mem_reg.predict(resnet)
 ```
 
+## Evaluate regression model performance
+```python
+# Evaluate MSE of predictions for resnet.
+cnn_cpu_reg.evaluate_mse(resnet)
+cnn_mem_reg.evaluate_mse(resnet)
+
+# Evaluate MASE of predictions for resnet.
+cnn_cpu_reg.evaluate_mase(resnet)
+cnn_mem_reg.evaluate_mase(resnet)
+```
+
 ## Training regression model on your own machine
 
 ### Generate Benchmarks (simple models)
