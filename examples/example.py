@@ -47,6 +47,12 @@ print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
 print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
 print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
 
+print("MobileNet cpu MASE:", cnn_cpu_reg.evaluate_mase(mobilenet))
+print("MobileNet mem MASE:", cnn_mem_reg.evaluate_mase(mobilenet))
+
+print("ResNet cpu MASE:", cnn_cpu_reg.evaluate_mase(resnet))
+print("ResNet mem MASE:", cnn_mem_reg.evaluate_mase(resnet))
+
 # Add new model data
 print("===== Adding new data =====")
 cnn_cpu_reg.add_model_data(mobilenet)
@@ -83,6 +89,11 @@ print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
 
 print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
 print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
+print("MobileNet cpu MASE:", cnn_cpu_reg.evaluate_mase(mobilenet))
+print("MobileNet mem MASE:", cnn_mem_reg.evaluate_mase(mobilenet))
+
+print("ResNet cpu MASE:", cnn_cpu_reg.evaluate_mase(resnet))
+print("ResNet mem MASE:", cnn_mem_reg.evaluate_mase(resnet))
 
 print("===== Saving =====")
 cnn_cpu_reg.save()
@@ -92,11 +103,11 @@ new_cnn_cpu_reg = CNN.CPURegressor()
 new_cnn_mem_reg = CNN.MemoryRegressor()
 
 
-print("===== Loaded model evaluation =====")
-print("MobileNet cpu MSE:", cnn_cpu_reg.evaluate(mobilenet))
-print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
+# print("===== Loaded model evaluation =====")
+# print("MobileNet cpu MSE:", cnn_cpu_reg.evaluate(mobilenet))
+# print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
 
-print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
-print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
+# print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
+# print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
 
 clear_saved_regressors()

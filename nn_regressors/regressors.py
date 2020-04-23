@@ -3,6 +3,7 @@ from enum import Enum
 import pkg_resources
 
 import pandas as pd
+import numpy as np
 from joblib import load, dump
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
@@ -28,12 +29,13 @@ class RegressorState(Enum):
 class Regressor():
     def __init__(self, save_file, arch, reg_type):
         self.save_file = save_file
-        self.regressor = self.load_saved_regressor()
+        self.regressor = None
+        self.train_df = None
         self.arch = arch
         self.type = reg_type
 
         self.state = RegressorState.DEFAULT
-        self.train_df = None
+        self.load_saved_regressor()
 
     def predict(self, model):
         layer_features = get_layer_features(model)
@@ -68,7 +70,7 @@ class Regressor():
 
         return X_test, y_test
     
-    def evaluate(self, model):
+    def _get_eval_data(self, model):
         pred = self.predict(model)
         benchmark = benchmark_model(model)
 
@@ -85,18 +87,32 @@ class Regressor():
             benchmark[['name', actual_col]].groupby('name')
         )
 
-        df = actual.merge(pred, on='name')
-        
+        return pred_col, actual_col, actual.merge(pred, on='name')
+    
+    def evaluate_mse(self, model):
+        pred_col, actual_col, df = self._get_eval_data(model)
         return mean_squared_error(df[pred_col], df[actual_col])
+    
+    # Alias for evalute_mse
+    def evaluate(self, model):
+        return self.evaluate_mse(model)
+    
+    # See https://stats.stackexchange.com/a/108963
+    def evaluate_mase(self, model):
+        pred_col, actual_col, df = self._get_eval_data(model)
+        errors = np.abs(df[actual_col] - df[pred_col])
+        train_mean = self.train_df[actual_col].mean()
+        train_diff = np.abs(self.train_df[actual_col] - train_mean)
+        den = train_diff.sum() / self.train_df.shape[0]
+        return np.abs(errors / den).mean()
+
+
     
     def add_model_data(self, model):
         new_data = get_benchmark_data(model)
-
-        if self.train_df is None:
+        if self.state == RegressorState.DEFAULT:
             self.state = RegressorState.CUSTOM
-            self.train_df = new_data
-        else:
-            self.train_df = pd.concat([self.train_df, new_data])
+        self.train_df = pd.concat([self.train_df, new_data], sort=False)
     
     def save(self, file=None):
         if self.state == RegressorState.DEFAULT:
@@ -105,21 +121,26 @@ class Regressor():
         if not file:
             file = self.save_file
 
-        dump(self.regressor, file) 
+        dump({
+            'model': self.regressor,
+            'train_data': self.train_df,
+        }, file) 
     
     def load_saved_regressor(self):
         if not self.save_file:
             raise Exception("Save file must not be None.")
-
-        if os.path.exists(self.save_file):
-            return load(self.save_file)
-
-        reg_file = pkg_resources.resource_filename(
-            'nn_regressors', self.save_file
-        )
-        return load(reg_file)
         
-
+        file = self.save_file
+        if os.path.exists(file):
+            loaded = load(self.save_file)
+        else:
+            reg_file = pkg_resources.resource_filename(
+               'nn_regressors', self.save_file
+            )
+            loaded = load(reg_file)
+    
+        self.regressor = loaded['model']
+        self.train_df = loaded['train_data']
 
 class CNN():
 
