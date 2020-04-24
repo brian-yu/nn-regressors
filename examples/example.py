@@ -43,21 +43,23 @@ layer_mem_usage = cnn_mem_reg.predict(mobilenet)
 
 print(layer_cpu_time.head())
 
-# Print MSEs
-print("===== Default evaluation =====")
+
+print("===== Pretrained evaluation =====")
 print("MobileNet cpu MSE:", cnn_cpu_reg.evaluate(mobilenet))
-print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
-
-print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
-print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
-
 print("MobileNet cpu MASE:", cnn_cpu_reg.evaluate_mase(mobilenet))
+
+
+print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
 print("MobileNet mem MASE:", cnn_mem_reg.evaluate_mase(mobilenet))
 
+print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
 print("ResNet cpu MASE:", cnn_cpu_reg.evaluate_mase(resnet))
+
+print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
 print("ResNet mem MASE:", cnn_mem_reg.evaluate_mase(resnet))
 
 # Compare different regressor types
+
 
 def get_regressors():
     return [
@@ -69,17 +71,9 @@ def get_regressors():
         NuSVR(),
     ]
 
+
 cnn_cpu_reg.compare(get_regressors(), mobilenet)
 cnn_mem_reg.compare(get_regressors(), mobilenet)
-
-cnn_cpu_reg.compare(get_regressors(), resnet)
-cnn_mem_reg.compare(get_regressors(), resnet)
-
-cnn_cpu_reg.compare(get_regressors(), densenet)
-cnn_mem_reg.compare(get_regressors(), densenet)
-
-cnn_cpu_reg.compare(get_regressors(), xception)
-cnn_mem_reg.compare(get_regressors(), xception)
 
 # Add new model data
 print("===== Adding new data =====")
@@ -89,51 +83,38 @@ cnn_mem_reg.add_model_data(mobilenet)
 cnn_cpu_reg.add_model_data(resnet)
 cnn_mem_reg.add_model_data(resnet)
 
-vgg16 = tf.keras.applications.vgg16.VGG16(include_top=True, weights="imagenet",)
-
-inception = tf.keras.applications.inception_v3.InceptionV3(
-    include_top=True, weights="imagenet",
-)
-
-cnn_cpu_reg.add_model_data(vgg16)
-cnn_mem_reg.add_model_data(vgg16)
-
-cnn_cpu_reg.add_model_data(inception)
-cnn_mem_reg.add_model_data(inception)
-
-print(cnn_cpu_reg.state)
-
 # Fit regressors to new model data.
 cnn_cpu_reg.fit()
 cnn_mem_reg.fit()
 
 print("===== New evaluation =====")
-cnn_cpu_reg.compare(get_regressors(), mobilenet)
-cnn_mem_reg.compare(get_regressors(), mobilenet)
+print("MobileNet cpu MSE:", cnn_cpu_reg.evaluate(mobilenet))
+print("MobileNet cpu MASE:", cnn_cpu_reg.evaluate_mase(mobilenet))
 
-cnn_cpu_reg.compare(get_regressors(), resnet)
-cnn_mem_reg.compare(get_regressors(), resnet)
+print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
+print("MobileNet mem MASE:", cnn_mem_reg.evaluate_mase(mobilenet))
 
-cnn_cpu_reg.compare(get_regressors(), densenet)
-cnn_mem_reg.compare(get_regressors(), densenet)
+print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
+print("ResNet cpu MASE:", cnn_cpu_reg.evaluate_mase(resnet))
 
-cnn_cpu_reg.compare(get_regressors(), xception)
-cnn_mem_reg.compare(get_regressors(), xception)
+print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
+print("ResNet mem MASE:", cnn_mem_reg.evaluate_mase(resnet))
 
 
 print("===== Saving =====")
 cnn_cpu_reg.save()
 cnn_mem_reg.save()
 
+print("===== Loading =====")
 new_cnn_cpu_reg = CNN.CPURegressor()
 new_cnn_mem_reg = CNN.MemoryRegressor()
 
 
-# print("===== Loaded model evaluation =====")
-# print("MobileNet cpu MSE:", cnn_cpu_reg.evaluate(mobilenet))
-# print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
+print("===== Loaded model evaluation =====")
+print("MobileNet cpu MSE:", cnn_cpu_reg.evaluate(mobilenet))
+print("MobileNet cpu MASE:", cnn_cpu_reg.evaluate_mase(mobilenet))
 
-# print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
-# print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
+print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
+print("MobileNet mem MASE:", cnn_mem_reg.evaluate_mase(mobilenet))
 
 clear_saved_regressors()

@@ -37,11 +37,10 @@ class Regressor:
         self.train_df = None
         self.arch = arch
         self.type = reg_type
-
         self.state = RegressorState.DEFAULT
+        self.pretrained = pretrained
 
-        if pretrained:
-            self.load_saved_regressor()
+        self.load_saved_regressor()
 
     def predict(self, model):
         layer_features = get_layer_features(model)
@@ -57,7 +56,7 @@ class Regressor:
             {"name": cleaned_features["name"], f"pred_{self.type.name}": predicted}
         )
 
-    def fit(self, model=None, n_estimators=1000, seed=42):
+    def fit(self, model=None):
 
         if self.type == RegressorType.CPU:
             target_column = "[avg ms]"
@@ -83,7 +82,7 @@ class Regressor:
         # Default to RF if no current model and no supplied model.
         elif not self.regressor:
             self.regressor = RandomForestRegressor(
-                n_estimators=n_estimators, random_state=seed
+                n_estimators=1000, random_state=42
             )
         # Train the model on training data
         self.regressor.fit(X_train, y_train)
@@ -160,12 +159,13 @@ class Regressor:
         if not self.save_file:
             raise Exception("Save file must not be None.")
 
-        file = self.save_file
-        if os.path.exists(file):
+        if os.path.exists(self.save_file):
             loaded = load(self.save_file)
-        else:
+        elif self.pretrained:
             reg_file = pkg_resources.resource_filename("nn_regressors", self.save_file)
             loaded = load(reg_file)
+        else:
+            return
 
         self.regressor = loaded["model"]
         self.train_df = loaded["train_data"]
