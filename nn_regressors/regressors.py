@@ -73,7 +73,7 @@ class Regressor:
 
         # Split dataset into training set and test set
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.3, random_state=seed
+            X, y, test_size=0.3, random_state=42
         )  # 70% training and 30% test
 
         # Use supplied model if available.
@@ -81,9 +81,7 @@ class Regressor:
             self.regressor = model
         # Default to RF if no current model and no supplied model.
         elif not self.regressor:
-            self.regressor = RandomForestRegressor(
-                n_estimators=1000, random_state=42
-            )
+            self.regressor = RandomForestRegressor(n_estimators=1000, random_state=42)
         # Train the model on training data
         self.regressor.fit(X_train, y_train)
 

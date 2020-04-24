@@ -6,6 +6,8 @@ from sklearn.metrics import mean_squared_error
 from sklearn.linear_model import Lasso, ElasticNet, Ridge
 from sklearn.svm import SVR, NuSVR
 from sklearn.ensemble import RandomForestRegressor
+import lightgbm as lgb
+import numpy as np
 
 
 def clear_saved_regressors():
@@ -57,6 +59,20 @@ cnn_cpu_reg.fit(model=SVR())  # Fit an SvR model
 cnn_mem_reg.fit()  # default to Random Forest
 
 # Compare different regressor types
+
+# Defines custom loss function for LGBM that penalizes underestimates.
+# See https://towardsdatascience.com/custom-loss-functions-for-gradient-boosting-f79c1b40466d
+def custom_asymmetric_train(y_true, y_pred):
+    residual = (y_true - y_pred).astype("float")
+    grad = np.where(residual > 0, -2 * 10.0 * residual, -2 * residual)
+    hess = np.where(residual > 0, 2 * 10.0, 2.0)
+    return grad, hess
+
+
+gbm = lgb.LGBMRegressor()
+gbm.set_params(**{"objective": custom_asymmetric_train}, metrics=["mse", "mae"])
+
+
 def get_regressors():
     return [
         Ridge(),
@@ -65,6 +81,7 @@ def get_regressors():
         ElasticNet(),
         SVR(),
         NuSVR(),
+        gbm,
     ]
 
 
