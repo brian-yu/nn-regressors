@@ -3,7 +3,8 @@ import os
 import tensorflow.compat.v1 as tf
 from nn_regressors import CNN, RNN, benchmark_model
 from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import Lasso, ElasticNet
+from sklearn.linear_model import Lasso, ElasticNet, Ridge
+from sklearn.svm import SVR, NuSVR
 from sklearn.ensemble import RandomForestRegressor
 
 
@@ -57,40 +58,28 @@ print("ResNet cpu MASE:", cnn_cpu_reg.evaluate_mase(resnet))
 print("ResNet mem MASE:", cnn_mem_reg.evaluate_mase(resnet))
 
 # Compare different regressor types
-cnn_cpu_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    mobilenet,
-)
-cnn_mem_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    mobilenet,
-)
 
-cnn_cpu_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    resnet,
-)
-cnn_mem_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    resnet,
-)
-cnn_cpu_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    densenet,
-)
-cnn_mem_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    densenet,
-)
+def get_regressors():
+    return [
+        Ridge(),
+        RandomForestRegressor(n_estimators=1000, random_state=42),
+        Lasso(),
+        ElasticNet(),
+        SVR(),
+        NuSVR(),
+    ]
 
-cnn_cpu_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    xception,
-)
-cnn_mem_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    xception,
-)
+cnn_cpu_reg.compare(get_regressors(), mobilenet)
+cnn_mem_reg.compare(get_regressors(), mobilenet)
+
+cnn_cpu_reg.compare(get_regressors(), resnet)
+cnn_mem_reg.compare(get_regressors(), resnet)
+
+cnn_cpu_reg.compare(get_regressors(), densenet)
+cnn_mem_reg.compare(get_regressors(), densenet)
+
+cnn_cpu_reg.compare(get_regressors(), xception)
+cnn_mem_reg.compare(get_regressors(), xception)
 
 # Add new model data
 print("===== Adding new data =====")
@@ -119,54 +108,17 @@ cnn_cpu_reg.fit()
 cnn_mem_reg.fit()
 
 print("===== New evaluation =====")
-# print("MobileNet cpu MSE:", cnn_cpu_reg.evaluate(mobilenet))
-# print("MobileNet mem MSE:", cnn_mem_reg.evaluate(mobilenet))
+cnn_cpu_reg.compare(get_regressors(), mobilenet)
+cnn_mem_reg.compare(get_regressors(), mobilenet)
 
-# print("ResNet cpu MSE:", cnn_cpu_reg.evaluate(resnet))
-# print("ResNet mem MSE:", cnn_mem_reg.evaluate(resnet))
+cnn_cpu_reg.compare(get_regressors(), resnet)
+cnn_mem_reg.compare(get_regressors(), resnet)
 
-# print("MobileNet cpu MASE:", cnn_cpu_reg.evaluate_mase(mobilenet))
-# print("MobileNet mem MASE:", cnn_mem_reg.evaluate_mase(mobilenet))
+cnn_cpu_reg.compare(get_regressors(), densenet)
+cnn_mem_reg.compare(get_regressors(), densenet)
 
-# print("ResNet cpu MASE:", cnn_cpu_reg.evaluate_mase(resnet))
-# print("ResNet mem MASE:", cnn_mem_reg.evaluate_mase(resnet))
-
-# cnn_cpu_reg.compare(
-#     [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-#     mobilenet,
-# )
-# cnn_mem_reg.compare(
-#     [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-#     mobilenet,
-# )
-
-# cnn_cpu_reg.compare(
-#     [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-#     resnet,
-# )
-# cnn_mem_reg.compare(
-#     [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-#     resnet,
-# )
-
-
-cnn_cpu_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    densenet,
-)
-cnn_mem_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    densenet,
-)
-
-cnn_cpu_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    xception,
-)
-cnn_mem_reg.compare(
-    [RandomForestRegressor(n_estimators=1000, random_state=42), Lasso(), ElasticNet()],
-    xception,
-)
+cnn_cpu_reg.compare(get_regressors(), xception)
+cnn_mem_reg.compare(get_regressors(), xception)
 
 
 print("===== Saving =====")

@@ -72,30 +72,3 @@ def preprocess(data, inference=False):
     cleaned["kernel_size"] = cleaned["kernel_size"].apply(flatten_shape)
 
     return cleaned.fillna(-1)
-
-
-from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import Lasso
-from sklearn.linear_model import ElasticNet
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.ensemble import GradientBoostingRegressor
-
-
-# class RidgeTransformer(Ridge, TransformerMixin):
-#     def transform(self, X, *_):
-#         return self.predict(X)
-
-
-# class RandomForestTransformer(RandomForestRegressor, TransformerMixin):
-#     def transform(self, X, *_):
-#         return self.predict(X)
-
-
-# class KNeighborsTransformer(KNeighborsRegressor, TransformerMixin):
-#     def transform(self, X, *_):
-#         return self.predict(X)
-
-
-def build_model():
-    return Lasso(alpha=0.1)

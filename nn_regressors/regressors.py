@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 
-from .utils import get_layer_features, preprocess, build_model
+from .utils import get_layer_features, preprocess
 from .benchmark import get_benchmark_data, benchmark_model
 
 
@@ -77,9 +77,10 @@ class Regressor:
             X, y, test_size=0.3, random_state=seed
         )  # 70% training and 30% test
 
-        # Instantiate model with 1000 decision trees
+        # Use supplied model if available.
         if model != None:
             self.regressor = model
+        # Default to RF if no current model and no supplied model.
         elif not self.regressor:
             self.regressor = RandomForestRegressor(
                 n_estimators=n_estimators, random_state=seed

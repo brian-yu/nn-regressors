@@ -87,28 +87,27 @@ cnn_mem_reg.evaluate_mase(resnet)
 
 ## Compare different regression models
 ```python
+from sklearn.linear_model import Lasso, ElasticNet, Ridge
+from sklearn.svm import SVR, NuSVR
+from sklearn.ensemble import RandomForestRegressor
 
 densenet = tf.keras.applications.densenet.DenseNet121(
     include_top=True,
     weights="imagenet",
 )
 
-cnn_cpu_reg.compare(
-    [
+def get_regressors():
+    return [
+        Ridge(),
         RandomForestRegressor(n_estimators=1000, random_state=42),
         Lasso(),
-        ElasticNet()
-    ],
-    densenet,
-)
-cnn_mem_reg.compare(
-    [
-        RandomForestRegressor(n_estimators=1000, random_state=42),
-        Lasso(),
-        ElasticNet()
-    ],
-    densenet,
-)
+        ElasticNet(),
+        SVR(),
+        NuSVR(),
+    ]
+
+cnn_cpu_reg.compare(get_regressors(), densenet)
+cnn_mem_reg.compare(get_regressors(), densenet)
 ```
 
 ## Training regression model on your own machine
