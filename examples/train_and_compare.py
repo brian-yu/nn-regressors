@@ -70,13 +70,15 @@ def custom_asymmetric_train(y_true, y_pred):
 
 
 gbm = lgb.LGBMRegressor()
-gbm.set_params(**{"objective": custom_asymmetric_train}, metrics=["mse", "mae"])
+gbm.set_params(
+    **{"objective": custom_asymmetric_train, "num_leaves": 70, "max_bin": 400}, metrics=["mse", "mae"]
+)
 
 
 def get_regressors():
     return [
         Ridge(),
-        RandomForestRegressor(n_estimators=1000, random_state=42),
+        RandomForestRegressor(n_estimators=750, random_state=42, criterion="mae"),
         Lasso(),
         ElasticNet(),
         SVR(),
@@ -86,15 +88,19 @@ def get_regressors():
 
 
 print("===== Evaluating on fitted models =====")
-cnn_cpu_reg.compare(get_regressors(), mobilenet)
-cnn_cpu_reg.compare(get_regressors(), resnet)
-cnn_cpu_reg.compare(get_regressors(), densenet)
-cnn_cpu_reg.compare(get_regressors(), xception)
+mobilenet_cpu_eval = cnn_cpu_reg.compare(get_regressors(), mobilenet)
+resnet_cpu_eval = cnn_cpu_reg.compare(get_regressors(), resnet)
+densenet_cpu_eval = cnn_cpu_reg.compare(get_regressors(), densenet)
+xception_cpu_eval = cnn_cpu_reg.compare(get_regressors(), xception)
+vgg16_cpu_eval = cnn_cpu_reg.compare(get_regressors(), vgg16)
+inception_cpu_eval = cnn_cpu_reg.compare(get_regressors(), inception)
 
-cnn_mem_reg.compare(get_regressors(), mobilenet)
-cnn_mem_reg.compare(get_regressors(), resnet)
-cnn_mem_reg.compare(get_regressors(), densenet)
-cnn_mem_reg.compare(get_regressors(), xception)
+mobilenet_mem_eval = cnn_mem_reg.compare(get_regressors(), mobilenet)
+resnet_mem_eval = cnn_mem_reg.compare(get_regressors(), resnet)
+densenet_mem_eval = cnn_mem_reg.compare(get_regressors(), densenet)
+xception_mem_eval = cnn_mem_reg.compare(get_regressors(), xception)
+vgg16_mem_eval = cnn_mem_reg.compare(get_regressors(), vgg16)
+inception_mem_eval = cnn_mem_reg.compare(get_regressors(), inception)
 
 
 # Test on new models
@@ -105,8 +111,9 @@ inception_resnet = tf.keras.applications.inception_resnet_v2.InceptionResNetV2(
 )
 nasnet = tf.keras.applications.nasnet.NASNetLarge(include_top=True, weights="imagenet",)
 
-cnn_cpu_reg.compare(get_regressors(), inception_resnet)
-cnn_cpu_reg.compare(get_regressors(), nasnet)
+inception_resnet_cpu_eval = cnn_cpu_reg.compare(get_regressors(), inception_resnet)
+nasnet_cpu_eval = cnn_cpu_reg.compare(get_regressors(), nasnet)
 
-cnn_mem_reg.compare(get_regressors(), inception_resnet)
-cnn_mem_reg.compare(get_regressors(), nasnet)
+
+inception_resnet_mem_eval = cnn_mem_reg.compare(get_regressors(), inception_resnet)
+nasnet_mem_eval = cnn_mem_reg.compare(get_regressors(), nasnet)

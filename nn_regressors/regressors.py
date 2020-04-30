@@ -124,6 +124,7 @@ class Regressor:
 
         print(f"Comparing regression models for {model_to_predict.name} {self.type}")
         print(df.head(len(models)))
+        return df
 
     # Alias for evalute_mse
     def evaluate(self, model):
