@@ -122,8 +122,8 @@ class Regressor:
 
         df = pd.DataFrame({"Model": model_names, "MSE": mse, "MASE": mase,})
 
-        print(f"Comparing regression models for {model_to_predict.name} {self.type}")
-        print(df.head(len(models)))
+        # print(f"Comparing regression models for {model_to_predict.name} {self.type}")
+        # print(df.head(len(models)))
         return df
 
     # Alias for evalute_mse
@@ -138,6 +138,16 @@ class Regressor:
         train_diff = np.abs(self.train_df[actual_col] - train_mean)
         den = train_diff.sum() / self.train_df.shape[0]
         return np.abs(errors / den).mean()
+    
+    def evaluate_mase_multiple(self, models):
+        mase = []
+        for model in models:
+            mase.append(self.evaluate_mase(model))
+        return pd.DataFrame({
+            "Model": [model.name for model in models],
+            "MASE": mase,
+        })
+
 
     def add_model_data(self, model):
         new_data = get_benchmark_data(model)
